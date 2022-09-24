@@ -1,18 +1,28 @@
-import { useEffect, useState, useContext } from "react";
+import { useEffect, useState } from "react";
 import Results from "./Results";
-import ThemeContext from "./ThemeContext";
 import useBreedList from "./useBreedList";
+import { useSelector, useDispatch } from "react-redux";
+import changeAnimal from "./actionCreators/changeAnimal";
+import changeBreed from "./actionCreators/changeBreed";
+import changeLocation from "./actionCreators/changeLocation";
+import changeTheme from "./actionCreators/changeTheme";
 
 const ANIMALS = ["bird", "cat", "dog", "rabbit", "reptile"];
 
 const SearchParams = () => {
-  // This give you the opportunity to mutate the location variable
-  const [location, updateLocation] = useState("");
-  const [animal, updateAnimal] = useState("");
-  const [breed, updateBreed] = useState("");
+  // The reason we pull these variables out of the state individully
+  // is because Redux uses this as a subscription table. Meaning that
+  // if we just pulled out the whole state, react would update
+  // SearchParams every time anything in the state changed. This way,
+  // we only update SearchParams when something relevant changes.
+  const animal = useSelector((state) => state.animal);
+  const location = useSelector((state) => state.location);
+  const breed = useSelector((state) => state.breed);
+  const theme = useSelector((state) => state.theme);
+  const dispatch = useDispatch();
+
   const [pets, setPets] = useState([]);
   const [breeds] = useBreedList(animal);
-  const [theme, setTheme] = useContext(ThemeContext);
 
   // A function that will be called outside of the render.
   // The array after the function contains the variable that would
@@ -46,7 +56,7 @@ const SearchParams = () => {
             id="location"
             value={location}
             placeholder="Location"
-            onChange={(e) => updateLocation(e.target.value)}
+            onChange={(e) => dispatch(changeLocation(e.target.value))}
           />
         </label>
         <label htmlFor="animal">
@@ -55,12 +65,10 @@ const SearchParams = () => {
             id="animal"
             value={animal}
             onChange={(e) => {
-              updateAnimal(e.target.value);
-              updateBreed("");
+              dispatch(changeAnimal(e.target.value));
             }}
             onBlur={(e) => {
-              updateAnimal(e.target.value);
-              updateBreed("");
+              dispatch(changeAnimal(e.target.value));
             }}
           >
             <option />
@@ -77,8 +85,8 @@ const SearchParams = () => {
             disabled={!breeds.length}
             id="breed"
             value={breed}
-            onChange={(e) => updateBreed(e.target.value)}
-            onBlur={(e) => updateBreed(e.target.value)}
+            onChange={(e) => dispatch(changeBreed(e.target.value))}
+            onBlur={(e) => dispatch(changeBreed(e.target.value))}
           >
             <option />
             {breeds.map((breed) => (
@@ -92,8 +100,8 @@ const SearchParams = () => {
           Theme
           <select
             value={theme}
-            onChange={(e) => setTheme(e.target.value)}
-            onBlur={(e) => setTheme(e.target.value)}
+            onChange={(e) => dispatch(changeTheme(e.target.value))}
+            onBlur={(e) => dispatch(changeTheme(e.target.value))}
           >
             <option value="peru">Peru</option>
             <option value="darkblue">Dark Blue</option>

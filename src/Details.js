@@ -2,8 +2,8 @@ import { Component } from "react";
 import { useParams } from "react-router-dom";
 import Carousel from "./Carousel";
 import ErrorBoundary from "./ErrorBoundary";
-import ThemeContext from "./ThemeContext";
 import Modal from "./Modal";
+import { connect } from "react-redux";
 
 class Details extends Component {
   state = { loading: true, showModal: false };
@@ -32,16 +32,14 @@ class Details extends Component {
         <div>
           <h1>{name}</h1>
           <h2>{`${animal} — ${breed} — ${city}, ${state}`}</h2>
-          <ThemeContext.Consumer>
-            {([theme]) => (
-              <button
-                onClick={this.toggleModal}
-                style={{ backgroundColor: theme }}
-              >
-                Adopt {name}
-              </button>
-            )}
-          </ThemeContext.Consumer>
+
+          <button
+            onClick={this.toggleModal}
+            style={{ backgroundColor: this.props.theme }}
+          >
+            Adopt {name}
+          </button>
+
           <p>{description}</p>
           {showModal ? (
             <Modal>
@@ -60,11 +58,18 @@ class Details extends Component {
   }
 }
 
+// This returns a function which maps from props to props.theme
+// This is an old way of doing this, which we're doing just so
+// that if I come across the code in future, I'll recognise it.
+const mapStateToProps = ({ theme }) => ({ theme });
+
+const ReduxWrappedDetails = connect(mapStateToProps)(Details);
+
 const WrappedDetails = () => {
   const params = useParams();
   return (
     <ErrorBoundary>
-      <Details params={params} />;
+      <ReduxWrappedDetails params={params} />;
     </ErrorBoundary>
   );
 };
